@@ -1,0 +1,25 @@
+:root {
+  --main-bg-color: #383939;
+  --main-color: #5e8989;
+  --secondary-color: #2c2a2a;
+  --gray: #646464;
+  --main-font-family: "Josefin Sans", sans-serif;
+  --secondary-font-family: "Poppins", sans-serif;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--main-bg-color);
+}
+
+.container {
+  width: 100%;
+  max-width: 1720px;
+  margin: 0 auto;
+  padding: 0 15px;
+}/*# sourceMappingURL=style.css.map */
