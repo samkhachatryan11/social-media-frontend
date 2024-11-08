@@ -86,7 +86,8 @@ const handleFileUpload = (event) => {
 
   isDisabled.value = false;
   isMenuOpen.value = false;
-  url.value = URL.createObjectURL(avatar.value);
+  postStore.getAuthor.avatar = URL.createObjectURL(avatar.value);
+  console.log("url.value", url.value);
 };
 
 const triggerFileUpload = () => {
@@ -151,12 +152,53 @@ function openModal(openPostId) {
   }
 }
 
+const isFriend = computed(() =>
+  userStore.getUserFriends.some((friend) => friend.id == route.params.id)
+);
+const hasSentRequest = computed(
+  () =>
+    senders.value.includes(route.params.id) &&
+    userStore.getUserFriends.some((friend) => friend.id != route.params.id)
+);
+const hasSentRequestByUser = computed(
+  () =>
+    userStore.getUserFriends.sender_id.includes(userStore.getUser.id) &&
+    userStore.sentFriendRequests.includes(route.params.id)
+);
+const isCurrentUserProfile = computed(
+  () => userStore.getUser.id == route.params.id
+);
+
+const buttonState = computed(() => {
+  if (isCurrentUserProfile.value) {
+    return {
+      label: "Save",
+      color: isDisabled.value ? "disabled" : "green",
+    };
+  }
+  if (isFriend.value) {
+    return { label: "Friends", color: "disabled" };
+  }
+  if (hasSentRequest.value) {
+    return { label: "Accept", color: "green" };
+  }
+  if (hasSentRequestByUser.value) {
+    return { label: "Follow", color: "disabled", disabled: true };
+  }
+  return { label: "Follow", color: "green" };
+});
+
 async function sendFriendRequest() {
   await userStore.sendFriendRequest(route.params.id);
 }
 
 async function acceptFriendRequest() {
-  await userStore.acceptFriendRequest(route.params.id);
+  const response = await userStore.acceptFriendRequest(route.params.id);
+  if (response) {
+    userStore.friendRequests.filter((sender) =>
+      userStore.getUserFriends.includes(sender.id)
+    );
+  }
 }
 
 const getImageUrl = (iconPath) => new URL(iconPath, import.meta.url).href;
@@ -193,7 +235,6 @@ const getImageUrl = (iconPath) => new URL(iconPath, import.meta.url).href;
             :image="postStore.getAuthor.avatar"
             :width="'100px'"
             :height="'100px'"
-            :src="getImageUrl(avatar)"
           />
         </div>
         <div class="profile__wrapper_main_info">
@@ -224,74 +265,28 @@ const getImageUrl = (iconPath) => new URL(iconPath, import.meta.url).href;
         </div>
       </div>
       <div class="profile__wrapper_save">
-        <Btn
-          @click="sendFriendRequest"
-          v-if="
-            !userStore.getUserFriends.some(
-              (friend) => friend.id == route.params.id
-            ) && status === 'finished'
-          "
-          class="profile__wrapper_save_btn"
-          size="sm"
-          color="green"
-          >Follow</Btn
-        >
-        <Btn
-          v-if="
-            !userStore.getUserFriends.some(
-              (friend) => friend.id == route.params.id
-            ) &&
-            senders.includes(route.params.id) &&
-            status === 'finished'
-          "
-          @click="acceptFriendRequest"
-          class="profile__wrapper_save_btn"
-          size="sm"
-          color="green"
-          >Accept</Btn
-        >
-        <Btn
-          v-else-if="
-            userStore.getUserFriends.some(
-              (friend) => friend.id == route.params.id
-            ) && status === 'finished'
-          "
-          class="profile__wrapper_save_btn"
-          size="sm"
-          color="disabled"
-          >Friends</Btn
-        >
-
-        <Btn
-          @click="updateAvatar"
-          v-else-if="
-            !isDisabled &&
-            status === 'finished' &&
-            userStore.getUser.id == route.params.id
-          "
-          class="profile__wrapper_save_btn"
-          size="sm"
-          color="green"
-          >Save</Btn
-        >
-        <Btn
-          v-else-if="
-            isDisabled &&
-            status === 'finished' &&
-            userStore.getUser.id == route.params.id
-          "
-          class="profile__wrapper_save_btn"
-          size="sm"
-          color="disabled"
-          >Save</Btn
-        >
         <Loader
+          v-if="status === 'loading'"
           class="profile__wrapper_save_loader"
           color="#5e8989"
           width="18px"
           height="18px"
-          v-else-if="status === 'loading'"
         />
+        <Btn
+          v-else
+          :size="'sm'"
+          :color="buttonState.color"
+          :disabled="buttonState.disabled"
+          @click="
+            buttonState.label === 'Follow'
+              ? sendFriendRequest()
+              : buttonState.label === 'Accept'
+              ? acceptFriendRequest()
+              : updateAvatar()
+          "
+        >
+          {{ buttonState.label }}
+        </Btn>
       </div>
       <div
         v-if="postStore.getPostsQuantity > 0"

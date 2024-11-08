@@ -7,6 +7,7 @@ export const useUserStore = defineStore("user", {
     user: useLocalStorage("authUser", "{}"),
     userFriends: [],
     friendRequests: [],
+    sentFriendRequests: [],
     status: "idle",
     error: null,
   }),
@@ -55,6 +56,7 @@ export const useUserStore = defineStore("user", {
     },
     async sendFriendRequest(id) {
       this.status = "loading";
+      this.sentFriendRequests.push(id);
       try {
         await authInstance.post(`/api/friends/send-friend-request/${id}`);
         this.status = "succeeded";

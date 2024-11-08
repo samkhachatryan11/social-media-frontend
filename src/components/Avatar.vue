@@ -21,7 +21,13 @@ const authURL = import.meta.env.VITE_APP_AUTH_SERVICE_URL;
     <img
       v-if="image"
       class="avatar__wrapper_image"
-      :src="`${authURL}/${image}`"
+      :src="
+        image.startsWith('blob')
+          ? image
+          : image.startsWith('https')
+          ? image
+          : `${authURL}/${image}`
+      "
       alt="image"
     />
     <img

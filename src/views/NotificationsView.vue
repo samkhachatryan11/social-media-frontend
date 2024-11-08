@@ -55,7 +55,13 @@ async function navigateToFriendProfile(userId) {
       <div class="notifications__wrapper_title">
         <Heading size="sm">Notifications</Heading>
       </div>
-      <div class="notifications__wrapper_main">
+      <div
+        v-if="notificationStore.getNotifications.length < 1"
+        class="notifications__wrapper_empty"
+      >
+        <Heading>You have no notifications!</Heading>
+      </div>
+      <div v-else class="notifications__wrapper_main">
         <NotificationCard
           v-for="notification in notificationStore.getNotifications"
           :key="notification._id"
@@ -107,6 +113,13 @@ async function navigateToFriendProfile(userId) {
       border-radius: 20px;
       cursor: default;
     }
+  }
+
+  &_empty {
+    height: 91%;
+    display: flex;
+    justify-content: center;
+    margin-top: 100px;
   }
 }
 </style>

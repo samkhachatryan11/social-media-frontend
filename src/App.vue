@@ -1,9 +1,7 @@
 <script setup></script>
 
 <template>
-  <v-app>
-    <RouterView />
-  </v-app>
+  <RouterView />
 </template>
 
 <style lang="scss"></style>

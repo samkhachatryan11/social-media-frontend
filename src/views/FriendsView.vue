@@ -107,6 +107,7 @@ async function friendRequests(option) {
     justify-content: space-between;
     align-items: center;
     padding: 14px;
+    z-index: 1;
     gap: 8px;
   }
 

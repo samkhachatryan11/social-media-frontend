@@ -2,8 +2,9 @@
 import Btn from "../components/Btn.vue";
 import Heading from "../components/Heading.vue";
 import { ref } from "vue";
-import axios from "axios";
 import { useRouter } from "vue-router";
+import { authInstance } from "../axios";
+
 const router = useRouter();
 
 const wrongPassword = ref(false);
@@ -13,44 +14,45 @@ const username = ref("");
 const email = ref("");
 const password = ref("");
 
-const AUTH_SERVICE_URL = import.meta.env.VITE_APP_AUTH_SERVICE_URL;
+const googleAuthURL = `${authInstance.defaults.baseURL}/api/google-auth`;
 
 async function submit() {
-  const axiosUrl = this.isLoginPage
-    ? `${AUTH_SERVICE_URL}/api/login`
-    : `${AUTH_SERVICE_URL}/api/registration`;
-  const payload = this.isLoginPage
-    ? { email: this.email, password: this.password }
+  const axiosUrl = isLoginPage.value ? `/api/login` : `/api/registration`;
+  const payload = isLoginPage.value
+    ? { email: email.value, password: password.value }
     : {
-        username: this.username,
-        email: this.email,
-        password: this.password,
+        username: username.value,
+        email: email.value,
+        password: password.value,
       };
+
   try {
-    await axios.post(axiosUrl, payload, { withCredentials: true });
-    this.email = "";
-    this.password = "";
+    await authInstance.post(axiosUrl, payload, { withCredentials: true });
+    email.value = "";
+    password.value = "";
     router.push("/home");
   } catch (err) {
-    if (this.email === "" || this.password === "") {
+    if (email.value === "" || password.value === "") {
       console.error(err);
-      this.emptyFields = true;
-      this.wrongPassword = false;
+      emptyFields.value = true;
+      wrongPassword.value = false;
     } else {
-      this.password = "";
-      this.emptyFields = false;
-      this.wrongPassword = true;
+      password.value = "";
+      emptyFields.value = false;
+      wrongPassword.value = true;
     }
   }
-  if (!this.isLoginPage) {
-    this.username = "";
+  if (!isLoginPage.value) {
+    username.value = "";
   }
 }
 
-async function authWithGoogle() {}
+function authWithGoogle() {
+  window.location.href = googleAuthURL;
+}
 
 const connectItems = [
-  { icon: "/src/assets/svg/google-logo.svg", action: authWithGoogle() },
+  { icon: "/src/assets/svg/google-logo.svg", action: authWithGoogle },
 ];
 </script>
 
@@ -62,16 +64,17 @@ const connectItems = [
         <h2>Log In</h2>
         <div class="main__heading_switch">
           <p>Don't have an account?</p>
-          <h3 @click="isLoginPage = !isLoginPage">Create one!</h3></div
-        >
+          <h3 @click="isLoginPage = !isLoginPage">Create one!</h3>
+        </div>
         <div class="main__heading_connect">
           <div
             class="main__heading_connect_item"
-            v-for="item in connectItems"
-            :key="item"
-            :action="item.action"
-            ><img :src="item.icon" alt=""
-          /></div>
+            v-for="(item, index) in connectItems"
+            :key="index"
+            @click="item.action"
+          >
+            <img :src="item.icon" alt="Connect with Google" />
+          </div>
         </div>
       </div>
       <div class="main__form_wrapper">
@@ -90,13 +93,13 @@ const connectItems = [
             class="main__form_input"
             placeholder="Password"
           />
-          <div class="validation_error" v-if="isLoginPage && wrongPassword"
-            ><span>Wrong Email or Password!</span></div
-          >
-          <div class="validation_error" v-if="isLoginPage && emptyFields"
-            ><span>Email and Password fields are required!</span></div
-          >
-          <Btn @click.prevent="submit()" size="md" color="gray">Log In</Btn>
+          <div class="validation_error" v-if="wrongPassword">
+            <span>Wrong Email or Password!</span>
+          </div>
+          <div class="validation_error" v-if="emptyFields">
+            <span>Email and Password fields are required!</span>
+          </div>
+          <Btn @click.prevent="submit" size="md" color="gray">Log In</Btn>
         </form>
       </div>
     </div>
@@ -105,8 +108,8 @@ const connectItems = [
         <h2>Sign Up</h2>
         <div class="main__heading_switch">
           <p>Already have an account?</p>
-          <h3 @click="isLoginPage = !isLoginPage">Log In!</h3></div
-        >
+          <h3 @click="isLoginPage = !isLoginPage">Log In!</h3>
+        </div>
       </div>
       <div class="main__form_wrapper">
         <form class="main__form">
@@ -130,7 +133,8 @@ const connectItems = [
             id="password"
             class="main__form_input"
             placeholder="Password"
-          /><Btn size="md" color="gray" @click.prevent="submit()">Sign Up</Btn>
+          />
+          <Btn size="md" color="gray" @click.prevent="submit">Sign Up</Btn>
         </form>
       </div>
     </div>
