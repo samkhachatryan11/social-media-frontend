@@ -4,15 +4,19 @@ import Heading from "../components/Heading.vue";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { authInstance } from "../axios";
+import { useUserStore } from "../stores/userStore";
 
 const router = useRouter();
 
-const wrongPassword = ref(false);
-const emptyFields = ref(false);
+const loginWrongPassword = ref(false);
+const loginEmptyFields = ref(false);
+const RegistrationWrongPassword = ref(false);
+const RegistrationEmptyFields = ref(false);
 const isLoginPage = ref(false);
 const username = ref("");
 const email = ref("");
 const password = ref("");
+const userStore = useUserStore();
 
 const googleAuthURL = `${authInstance.defaults.baseURL}/api/google-auth`;
 
@@ -27,19 +31,30 @@ async function submit() {
       };
 
   try {
-    await authInstance.post(axiosUrl, payload, { withCredentials: true });
+    await authInstance.post(axiosUrl, payload);
     email.value = "";
     password.value = "";
+    await userStore.fetchUserData();
     router.push("/home");
   } catch (err) {
     if (email.value === "" || password.value === "") {
       console.error(err);
-      emptyFields.value = true;
-      wrongPassword.value = false;
+      if (isLoginPage.value) {
+        loginEmptyFields.value = true;
+        loginWrongPassword.value = false;
+      } else if (!isLoginPage.value) {
+        RegistrationEmptyFields.value = true;
+        RegistrationWrongPassword.value = false;
+      }
     } else {
       password.value = "";
-      emptyFields.value = false;
-      wrongPassword.value = true;
+      if (isLoginPage.value) {
+        loginEmptyFields.value = false;
+        loginWrongPassword.value = true;
+      } else if (!isLoginPage.value) {
+        RegistrationEmptyFields.value = false;
+        RegistrationWrongPassword.value = true;
+      }
     }
   }
   if (!isLoginPage.value) {
@@ -93,11 +108,11 @@ const connectItems = [
             class="main__form_input"
             placeholder="Password"
           />
-          <div class="validation_error" v-if="wrongPassword">
+          <div class="validation_error" v-if="loginWrongPassword">
             <span>Wrong Email or Password!</span>
           </div>
-          <div class="validation_error" v-if="emptyFields">
-            <span>Email and Password fields are required!</span>
+          <div class="validation_error" v-if="loginEmptyFields">
+            <span>All fields are required!</span>
           </div>
           <Btn @click.prevent="submit" size="md" color="gray">Log In</Btn>
         </form>
@@ -134,6 +149,12 @@ const connectItems = [
             class="main__form_input"
             placeholder="Password"
           />
+          <div class="validation_error" v-if="RegistrationWrongPassword">
+            <span>Wrong Email or Password!</span>
+          </div>
+          <div class="validation_error" v-if="RegistrationEmptyFields">
+            <span>All fields are required!</span>
+          </div>
           <Btn size="md" color="gray" @click.prevent="submit">Sign Up</Btn>
         </form>
       </div>

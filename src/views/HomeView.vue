@@ -74,7 +74,10 @@ function openModal(openPostId) {
             >
             <img src="../assets/svg/add-friend.svg" alt="add friends" />
           </div>
-          <div class="home__wrapper_no_friends_recommendations">
+          <div
+            v-if="randUsers.length >= 3"
+            class="home__wrapper_no_friends_recommendations"
+          >
             <Heading
               class="home__wrapper_no_friends_recommendations_heading"
               size="sm"

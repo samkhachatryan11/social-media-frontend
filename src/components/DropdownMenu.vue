@@ -19,11 +19,9 @@
 </template>
 
 <script setup>
-import { ref, defineEmits } from "vue";
+import { ref } from "vue";
 
 const emit = defineEmits(["optionSelected"]);
-
-const options = ref(["My friends", "Friend requests", "Blocked"]);
 const isOpen = ref(false);
 const selectedOption = ref(null);
 
@@ -36,6 +34,12 @@ const handleOptionSelect = (option) => {
   isOpen.value = false;
   emit("optionSelected", option);
 };
+
+const props = defineProps({
+  options: {
+    type: Array,
+  },
+});
 </script>
 
 <style scoped lang="scss">

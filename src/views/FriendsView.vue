@@ -15,6 +15,7 @@ const userStore = useUserStore();
 const searchInput = ref("");
 const postStore = usePostStore();
 const router = useRouter();
+const dropdownMenuOptions = ref(["My friends", "Friend requests"]);
 let page = 1;
 
 onMounted(() => {
@@ -65,6 +66,7 @@ async function friendRequests(option) {
         />
         <DropdownMenu
           @optionSelected="friendRequests"
+          :options="dropdownMenuOptions"
           class="friends__wrapper_menu_dropdown"
         />
       </div>

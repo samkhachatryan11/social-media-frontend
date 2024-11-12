@@ -1,13 +1,6 @@
-import {
-  createRouter,
-  createWebHistory,
-  onBeforeRouteUpdate,
-  useRoute,
-} from "vue-router";
+import { createRouter, createWebHistory, useRoute } from "vue-router";
 import { useUserStore } from "../stores/userStore";
-
 import { routes } from "./routes";
-import { usePostStore } from "../stores/postStore";
 
 const router = createRouter({
   history: createWebHistory(),

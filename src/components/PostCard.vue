@@ -78,9 +78,6 @@ async function openPost() {
         <Avatar :image="props.author.avatar" :width="'36px'" :height="'36px'" />
         <p>{{ props.author.username }}</p>
       </div>
-      <div v-if="post" class="post__card_wrapper_info_menu">
-        <img src="../assets/svg/dots.svg" alt="menu" />
-      </div>
     </div>
     <div @click="openPost" class="post__card_wrapper_content">
       <div v-if="props.post.image" class="post__card_wrapper_content_image">
@@ -123,12 +120,6 @@ async function openPost() {
         font-family: var(--main-font-family);
         color: var(--main-color);
         font-weight: 600;
-      }
-    }
-
-    &_menu {
-      img {
-        cursor: pointer;
       }
     }
   }
