@@ -40,7 +40,7 @@ onMounted(async () => {
       const { data } = await authInstance.get("/api/random-users");
       randUsers.value = data;
     } catch (error) {
-      throw error;
+      console.log(error);
     }
   }
 
